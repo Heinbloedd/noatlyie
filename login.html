@@ -27,6 +27,7 @@
         .input-field input { width: 100%; padding: 12px 15px 12px 42px; border-radius: 12px; border: 1px solid #ccc; outline: none; font-size: 16px; background: rgba(255, 255, 255, 0.9); }
         .submit-btn { background-color: #64b5f6; color: #000; border: none; padding: 14px; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: all 0.2s ease; }
         .submit-btn:hover { background-color: #42a5f5; transform: translateY(-2px); }
+        .submit-btn:disabled { background-color: #b0bec5; cursor: not-allowed; transform: none; }
         .message-box { width: 100%; padding: 12px; border-radius: 10px; font-size: 14px; display: none; text-align: center; font-weight: 500; }
         .message-box.error { background-color: #ffebee; color: #c62828; border: 1px solid #ef9a9a; display: block; }
         .message-box.success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; display: block; }
@@ -52,6 +53,7 @@
 
             <div id="message-box" class="message-box"></div>
 
+            <!-- Login Formular -->
             <form id="login-form">
                 <div class="input-group">
                     <label for="login-email">E-Mail</label>
@@ -67,9 +69,10 @@
                         <input type="password" id="login-password" placeholder="••••••••" required>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn">Anmelden</button>
+                <button type="submit" class="submit-btn" id="login-submit-btn">Anmelden</button>
             </form>
 
+            <!-- Registrierungs Formular -->
             <form id="register-form" style="display: none;">
                 <div class="input-group">
                     <label for="reg-name">Vollständiger Name</label>
@@ -92,17 +95,19 @@
                         <input type="password" id="reg-password" placeholder="Mindestens 6 Zeichen" minlength="6" required>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn">Konto erstellen</button>
+                <button type="submit" class="submit-btn" id="reg-submit-btn">Konto erstellen</button>
             </form>
 
-            <a href="profile.html" class="guest-link">Als Gast fortfahren</a>
+            <a href="groups.html" class="guest-link">Als Gast fortfahren</a>
         </div>
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Deine Firebase-Konfiguration
         const firebaseConfig = {
             apiKey: "AIzaSyDJVCWyKoD97UCNx1Z_vDKKG9aGkCSAY38",
             authDomain: "noatly-144b7.firebaseapp.com",
@@ -112,9 +117,12 @@
             appId: "1:958712826528:web:5134bb7688c05bddbb17c5"
         };
 
+        // Firebase initialisieren
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
+        // Tab Wechsellogik
         window.switchTab = function(tab) {
             const loginForm = document.getElementById('login-form');
             const registerForm = document.getElementById('register-form');
@@ -139,36 +147,81 @@
             }
         };
 
-        // Login verarbeiten
+        // LOGIN Logik
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
+            const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-submit-btn');
+
+            btn.disabled = true;
+            btn.innerText = 'Wird angemeldet...';
+            hideMessage();
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                showMessage('Erfolgreich angemeldet!', 'success');
-                setTimeout(() => window.location.href = 'profile.html', 800);
+                showMessage('Erfolgreich angemeldet! Du wirst weitergeleitet...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'groups.html';
+                }, 1000);
             } catch (error) {
-                showMessage('Fehler: Falsche E-Mail oder Passwort.', 'error');
+                btn.disabled = false;
+                btn.innerText = 'Anmelden';
+                
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+                    showMessage('E-Mail oder Passwort ist falsch.', 'error');
+                } else if (error.code === 'auth/user-not-found') {
+                    showMessage('Kein Konto mit dieser E-Mail gefunden.', 'error');
+                } else {
+                    showMessage('Fehler beim Anmelden: ' + error.message, 'error');
+                }
             }
         });
 
-        // Registrierung verarbeiten
+        // REGISTRIERUNGS Logik
         document.getElementById('register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-password').value;
+            const btn = document.getElementById('reg-submit-btn');
+
+            btn.disabled = true;
+            btn.innerText = 'Konto wird erstellt...';
+            hideMessage();
 
             try {
+                // 1. Benutzer in Firebase Auth erstellen
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await updateProfile(userCredential.user, { displayName: name });
-                
-                showMessage('Konto erstellt! Du wirst weitergeleitet...', 'success');
-                setTimeout(() => window.location.href = 'profile.html', 800);
+                const user = userCredential.user;
+
+                // 2. Profil-Namen im Auth-Konto festlegen
+                await updateProfile(user, { displayName: name });
+
+                // 3. Benutzer-Dokument in Firestore mit leerem my_groups Array anlegen
+                await setDoc(doc(db, "users", user.uid), {
+                    name: name,
+                    email: email,
+                    my_groups: [],
+                    createdAt: new Date()
+                });
+
+                showMessage('Konto erfolgreich erstellt! Du wirst weitergeleitet...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'groups.html';
+                }, 1000);
+
             } catch (error) {
-                showMessage('Fehler bei der Registrierung: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.innerText = 'Konto erstellen';
+
+                if (error.code === 'auth/email-already-in-use') {
+                    showMessage('Diese E-Mail-Adresse wird bereits verwendet.', 'error');
+                } else if (error.code === 'auth/weak-password') {
+                    showMessage('Das Passwort muss mindestens 6 Zeichen lang sein.', 'error');
+                } else {
+                    showMessage('Fehler bei der Registrierung: ' + error.message, 'error');
+                }
             }
         });
 
