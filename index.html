@@ -3,183 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage - share, prepare, compare</title>
-    
-    <!-- Font Awesome für die Icons -->
+    <title>noatly - share, prepare, compare</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-image: url('back.jpeg'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; }
+        .logo-img { height: 55px; width: auto; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); object-fit: contain; }
+        
+        /* Profil-Link & Profilbild oben rechts */
+        .profile-header-link { display: flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s; }
+        .profile-header-link:hover { transform: scale(1.08); }
+        .nav-profile-img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #64b5f6; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        .nav-profile-icon { font-size: 38px; color: #1a365d; }
 
-        body {
-            /* Hintergrundbild back.jpeg */
-            background-image: url('back.jpeg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        main { flex: 1; padding: 40px 20px; max-width: 500px; margin: 0 auto; width: 100%; }
+        .home-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 20px; padding: 35px 30px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+        
+        .welcome-title { font-size: 28px; font-weight: 700; color: #000; }
+        .welcome-text { font-size: 16px; color: #444; line-height: 1.5; }
 
-        /* Header Bereich */
-        header {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-        }
-
-        /* Styling für dein Logo (logo.png) */
-        .logo-img {
-            height: 55px;
-            width: auto;
-            border-radius: 6px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            object-fit: contain;
-        }
-
-        /* Slogan in der Mitte */
-        .tagline {
-            font-size: 28px;
-            font-weight: 400;
-            color: #111;
-            letter-spacing: 0.5px;
-        }
-
-        /* Profil-Icon oben rechts */
-        .profile-btn {
-            font-size: 36px;
-            color: #000;
-            text-decoration: none;
-            transition: transform 0.2s ease;
-        }
-
-        .profile-btn:hover {
-            transform: scale(1.1);
-        }
-
-        /* Hauptinhalt & Buttons Zentrierung */
-        main {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-            max-width: 320px;
-        }
-
-        /* Blaue Haupt-Buttons */
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 15px;
-            padding: 14px 24px;
-            background-color: #64b5f6;
-            color: #000;
-            text-decoration: none;
-            border-radius: 35px;
-            font-weight: 600;
-            font-size: 18px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-        }
-
-        /* Hover-Animation */
-        .btn:hover {
-            background-color: #42a5f5;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .icon-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .btn-upload .icon-circle {
-            font-size: 24px;
-        }
-
-        .btn-outlined .icon-circle {
-            border: 2px solid #000;
-        }
+        .menu-list { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .menu-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background-color: #7cbdff; color: #000; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: 600; transition: transform 0.2s, background 0.2s; }
+        .menu-btn:hover { background-color: #64b5f6; transform: translateY(-2px); }
+        .menu-btn i.left-icon { width: 25px; font-size: 18px; }
+        .menu-btn div { display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- Header mit logo.png -->
     <header>
-        <div class="logo-container">
-            <a href="index.html">
-                <img src="logo.png" alt="Logo" class="logo-img">
-            </a>
-        </div>
-
-        <h1 class="tagline">share, prepare, compare</h1>
-
-        <a href="profile.html" class="profile-btn" title="Mein Profil">
-            <i class="fa-regular fa-circle-user"></i>
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.onerror=null; this.src='logo.jpg';">
+        </a>
+        
+        <!-- Profil-Button oben rechts (wird dynamisch mit Bild oder Icon gefüllt) -->
+        <a href="profile.html" class="profile-header-link" id="header-profile-target">
+            <i class="fa-solid fa-circle-user nav-profile-icon" id="header-profile-icon"></i>
         </a>
     </header>
 
-    <!-- Hauptbereich -->
     <main>
-        <div class="button-container">
-            
-            <a href="upload.html" class="btn btn-upload">
-                <div class="icon-circle">
-                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
-                </div>
-                <span>Hochladen</span>
-            </a>
+        <div class="home-card">
+            <h1 class="welcome-title">Willkommen bei noatly</h1>
+            <p class="welcome-text">share, prepare, compare – Verwalte deine Notizen, Gruppen und Klassen an einem Ort.</p>
 
-            <a href="my_notes.html" class="btn btn-outlined">
-                <div class="icon-circle">
-                    <i class="fa-solid fa-file-pen"></i>
-                </div>
-                <span>meine Notizen</span>
-            </a>
-
-            <a href="my_groups.html" class="btn btn-outlined">
-                <div class="icon-circle">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-                <span>meine Gruppen</span>
-            </a>
-
+            <div class="menu-list">
+                <a href="notes.html" class="menu-btn">
+                    <div><i class="fa-solid fa-file-lines left-icon"></i> Meine Notizen</div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                <a href="groups.html" class="menu-btn">
+                    <div><i class="fa-solid fa-user-group left-icon"></i> Meine Gruppen</div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                <a href="classes.html" class="menu-btn">
+                    <div><i class="fa-solid fa-graduation-cap left-icon"></i> Meine Klassen</div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                <a href="profile.html" class="menu-btn">
+                    <div><i class="fa-solid fa-user left-icon"></i> Mein Profil</div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </div>
         </div>
     </main>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJVCWyKoD97UCNx1Z_vDKKG9aGkCSAY38",
+            authDomain: "noatly-144b7.firebaseapp.com",
+            projectId: "noatly-144b7",
+            storageBucket: "noatly-144b7.firebasestorage.app",
+            messagingSenderId: "958712826528",
+            appId: "1:958712826528:web:5134bb7688c05bddbb17c5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const profileTarget = document.getElementById('header-profile-target');
+
+        // Überprüfen, ob der Benutzer ein Profilbild gesetzt hat
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.photoURL) {
+                profileTarget.innerHTML = `<img src="${user.photoURL}" class="nav-profile-img" alt="Profil">`;
+            } else {
+                profileTarget.innerHTML = `<i class="fa-solid fa-circle-user nav-profile-icon"></i>`;
+            }
+        });
+    </script>
 </body>
 </html>
