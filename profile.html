@@ -16,9 +16,9 @@
         main { flex: 1; padding: 40px 20px; max-width: 480px; margin: 0 auto; width: 100%; }
         .profile-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 20px; padding: 35px 30px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; gap: 15px; }
         
-        .avatar-container { position: relative; width: 100px; height: 100px; }
+        .avatar-container { position: relative; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; }
         .avatar-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #64b5f6; }
-        .avatar-icon { font-size: 100px; color: #64b5f6; }
+        .avatar-icon { font-size: 90px; color: #64b5f6; }
 
         .user-name { font-size: 28px; font-weight: 700; color: #000; text-align: center; }
         .user-email { font-size: 15px; color: #666; text-align: center; margin-top: -10px; margin-bottom: 10px; }
@@ -29,10 +29,12 @@
         .menu-btn i.left-icon { width: 25px; font-size: 18px; }
         .menu-btn div { display: flex; align-items: center; gap: 10px; }
 
-        /* Formular für Einstellungen */
-        .settings-box { width: 100%; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 12px; display: none; flex-direction: column; gap: 10px; border: 1px solid #ccc; }
-        .settings-box input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; }
-        .save-btn { background: #4caf50; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        /* Einstellungen-Bereich */
+        .settings-box { width: 100%; background: rgba(255, 255, 255, 0.95); padding: 18px; border-radius: 12px; display: none; flex-direction: column; gap: 12px; border: 1px solid #bbdefb; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .settings-box label { font-size: 13px; font-weight: 700; color: #333; }
+        .settings-box input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; outline: none; }
+        .save-btn { background: #4caf50; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; transition: background 0.2s; }
+        .save-btn:hover { background: #43a047; }
 
         .auth-action-btn { background-color: #66bb6a; color: #fff; }
         .auth-action-btn:hover { background-color: #4caf50; }
@@ -56,8 +58,8 @@
                 <i class="fa-solid fa-circle-user avatar-icon"></i>
             </div>
             
-            <h2 class="user-name" id="user-display-name">Lade Profil...</h2>
-            <p class="user-email" id="user-display-email"></p>
+            <h2 class="user-name" id="user-display-name">Schüler / Gast</h2>
+            <p class="user-email" id="user-display-email">Nicht angemeldet</p>
 
             <div class="menu-list">
                 <a href="notes.html" class="menu-btn">
@@ -74,23 +76,30 @@
                 </a>
 
                 <!-- Einstellungen Button -->
-                <button class="menu-btn" id="toggle-settings-btn" style="display: none;">
+                <button class="menu-btn" id="toggle-settings-btn">
                     <div><i class="fa-solid fa-gear left-icon"></i> Profil bearbeiten</div>
-                    <i class="fa-solid fa-chevron-down"></i>
+                    <i class="fa-solid fa-chevron-down" id="settings-arrow"></i>
                 </button>
 
-                <!-- Bearbeiten Formular -->
+                <!-- Bearbeiten Formular (Standardmässig zugeklappt) -->
                 <div class="settings-box" id="settings-box">
-                    <label style="font-size: 12px; font-weight: bold;">Neuer Name:</label>
-                    <input type="text" id="edit-name-input" placeholder="Name eingeben">
-                    
-                    <label style="font-size: 12px; font-weight: bold;">Profilbild (Bild-URL):</label>
-                    <input type="url" id="edit-photo-input" placeholder="https://beispiel.de/bild.jpg">
-                    
-                    <button class="save-btn" id="save-settings-btn">Speichern</button>
+                    <div>
+                        <label>Benutzername ändern:</label>
+                        <input type="text" id="edit-name-input" placeholder="Neuer Name">
+                    </div>
+                    <div>
+                        <label>Profilbild (Bild-URL):</label>
+                        <input type="url" id="edit-photo-input" placeholder="https://beispiel.de/bild.jpg">
+                    </div>
+                    <button class="save-btn" id="save-settings-btn">Änderungen speichern</button>
                 </div>
 
-                <div id="auth-button-container"></div>
+                <div id="auth-button-container">
+                    <a href="login.html" class="menu-btn auth-action-btn">
+                        <div><i class="fa-solid fa-right-to-bracket left-icon"></i> Anmelden</div>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </main>
@@ -117,44 +126,29 @@
         const btnContainer = document.getElementById('auth-button-container');
         const toggleBtn = document.getElementById('toggle-settings-btn');
         const settingsBox = document.getElementById('settings-box');
+        const settingsArrow = document.getElementById('settings-arrow');
 
+        // Ausklapp-Funktion für Einstellungen
+        toggleBtn.addEventListener('click', () => {
+            const isHidden = settingsBox.style.display === '' || settingsBox.style.display === 'none';
+            settingsBox.style.display = isHidden ? 'flex' : 'none';
+            settingsArrow.className = isHidden ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+        });
+
+        // Firebase Auth Status auslesen
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 nameElement.innerText = user.displayName || "Schüler";
                 emailElement.innerText = user.email;
 
-                // Profilbild anzeigen falls vorhanden
+                document.getElementById('edit-name-input').value = user.displayName || "";
+                document.getElementById('edit-photo-input').value = user.photoURL || "";
+
                 if (user.photoURL) {
                     avatarArea.innerHTML = `<img src="${user.photoURL}" class="avatar-img" alt="Profilbild">`;
                 } else {
                     avatarArea.innerHTML = `<i class="fa-solid fa-circle-user avatar-icon"></i>`;
                 }
-
-                toggleBtn.style.display = 'flex';
-
-                // Settings Ausklappen
-                toggleBtn.addEventListener('click', () => {
-                    const isVisible = settingsBox.style.display === 'flex';
-                    settingsBox.style.display = isVisible ? 'none' : 'flex';
-                });
-
-                // Profil Speichern
-                document.getElementById('save-settings-btn').addEventListener('click', async () => {
-                    const newName = document.getElementById('edit-name-input').value.trim();
-                    const newPhoto = document.getElementById('edit-photo-input').value.trim();
-
-                    const updateData = {};
-                    if (newName) updateData.displayName = newName;
-                    if (newPhoto) updateData.photoURL = newPhoto;
-
-                    try {
-                        await updateProfile(user, updateData);
-                        alert("Profil aktualisiert!");
-                        window.location.reload();
-                    } catch (error) {
-                        alert("Fehler beim Speichern: " + error.message);
-                    }
-                });
 
                 btnContainer.innerHTML = `
                     <button class="menu-btn logout-btn" id="logout-btn">
@@ -170,7 +164,7 @@
             } else {
                 nameElement.innerText = "Schüler / Gast";
                 emailElement.innerText = "Nicht angemeldet";
-                toggleBtn.style.display = 'none';
+                avatarArea.innerHTML = `<i class="fa-solid fa-circle-user avatar-icon"></i>`;
 
                 btnContainer.innerHTML = `
                     <a href="login.html" class="menu-btn auth-action-btn">
@@ -178,6 +172,29 @@
                         <i class="fa-solid fa-chevron-right"></i>
                     </a>
                 `;
+            }
+        });
+
+        // Speichern der Änderungen
+        document.getElementById('save-settings-btn').addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Bitte melde dich zuerst an, um deine Einstellungen zu speichern.");
+                return;
+            }
+
+            const newName = document.getElementById('edit-name-input').value.trim();
+            const newPhoto = document.getElementById('edit-photo-input').value.trim();
+
+            try {
+                await updateProfile(user, {
+                    displayName: newName,
+                    photoURL: newPhoto
+                });
+                alert("Profil erfolgreich aktualisiert!");
+                window.location.reload();
+            } catch (error) {
+                alert("Fehler beim Speichern: " + error.message);
             }
         });
     </script>
