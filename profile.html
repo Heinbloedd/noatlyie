@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil & Einstellungen - share, prepare, compare</title>
+    
+    <!-- Font Awesome für Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-image: url('back.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Bereich */
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+        }
+
+        .logo-img {
+            height: 55px;
+            width: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            object-fit: contain;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .profile-btn {
+            font-size: 36px;
+            color: #000;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Hauptbereich */
+        main {
+            flex: 1;
+            padding: 40px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .avatar-container {
+            font-size: 80px;
+            color: #64b5f6;
+        }
+
+        .user-info {
+            text-align: center;
+        }
+
+        .user-info h2 {
+            font-size: 28px;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Buttons & Navigation */
+        .profile-menu {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .profile-action-btn {
+            background-color: #64b5f6;
+            color: #000;
+            text-decoration: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            border: none;
+            width: 100%;
+        }
+
+        .profile-action-btn:hover {
+            background-color: #42a5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+
+        .btn-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-left i {
+            font-size: 22px;
+            width: 25px;
+            text-align: center;
+        }
+
+        /* Login / Logout Buttons */
+        .logout-btn {
+            background-color: #ef5350;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .logout-btn:hover {
+            background-color: #e53935;
+        }
+
+        .login-btn {
+            background-color: #66bb6a;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background-color: #43a047;
+        }
+
+        /* Ausklappbarer Einstellungen-Bereich */
+        .settings-panel {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            margin-top: -5px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Kippschalter Style */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #64b5f6;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.onerror=null; this.src='logo.jpg';">
+        </a>
+
+        <h1 class="page-title">Mein Profil</h1>
+
+        <a href="profile.html" class="profile-btn" title="Mein Profil">
+            <i class="fa-regular fa-circle-user"></i>
+        </a>
+    </header>
+
+    <!-- Profil-Inhalt -->
+    <main>
+        <div class="profile-card">
+            
+            <div class="avatar-container">
+                <i class="fa-solid fa-circle-user"></i>
+            </div>
+
+            <div class="user-info">
+                <h2 id="username-display">Schüler / Gast</h2>
+                <p id="email-display">nicht angemeldet</p>
+            </div>
+
+            <div class="profile-menu">
+                
+                <a href="my_notes.html" class="profile-action-btn">
+                    <div class="btn-left">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <span>Meine Notizen</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+                <a href="my_groups.html" class="profile-action-btn">
+                    <div class="btn-left">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Meine Gruppen</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+                <a href="classes.html" class="profile-action-btn">
+                    <div class="btn-left">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>Meine Klassen</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+                <!-- Einstellungen Kachel -->
+                <button class="profile-action-btn" onclick="toggleSettings()">
+                    <div class="btn-left">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Einstellungen</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down" id="settings-arrow"></i>
+                </button>
+
+                <!-- Ausklappbare Einstellungen -->
+                <div class="settings-panel" id="settings-panel">
+                    <div class="setting-item">
+                        <span>Dunkler Modus</span>
+                        <label class="switch">
+                            <input type="checkbox" id="dark-mode-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Benachrichtigungen</span>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <a href="upload.html" class="profile-action-btn">
+                    <div class="btn-left">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Datei hochladen</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+                <!-- Dynamischer Login / Logout Button -->
+                <div id="auth-button-container">
+                    <!-- Wird per JavaScript dynamisch befüllt -->
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        window.onload = function() {
+            checkAuthStatus();
+        };
+
+        function checkAuthStatus() {
+            let currentUser = null;
+
+            try {
+                // Versuche Daten aus localStorage zu lesen
+                currentUser = JSON.parse(localStorage.getItem('current_user') || localStorage.getItem('currentUser'));
+            } catch (e) {
+                console.log('Fehler beim Lesen der Nutzerdaten:', e);
+            }
+
+            const usernameDisplay = document.getElementById('username-display');
+            const emailDisplay = document.getElementById('email-display');
+            const authContainer = document.getElementById('auth-button-container');
+
+            // Prüfen, ob der Nutzer angemeldet ist (Name oder Email vorhanden)
+            if (currentUser && (currentUser.name || currentUser.email)) {
+                usernameDisplay.innerText = currentUser.name || 'Schüler';
+                emailDisplay.innerText = currentUser.email || 'Eingeloggt';
+
+                // Nur "Abmelden" Button anzeigen
+                authContainer.innerHTML = `
+                    <button class="profile-action-btn logout-btn" onclick="logout()">
+                        <div class="btn-left">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Abmelden</span>
+                        </div>
+                    </button>
+                `;
+            } else {
+                // Wenn NICHT angemeldet
+                usernameDisplay.innerText = 'Schüler / Gast';
+                emailDisplay.innerText = 'Nicht angemeldet';
+
+                // Nur "Anmelden" Button anzeigen
+                authContainer.innerHTML = `
+                    <a href="login.html" class="profile-action-btn login-btn">
+                        <div class="btn-left">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                            <span>Anmelden</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                `;
+            }
+        }
+
+        // Einstellungen Menü ausklappen / einklappen
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            const arrow = document.getElementById('settings-arrow');
+
+            if (panel.style.display === 'flex') {
+                panel.style.display = 'none';
+                arrow.className = 'fa-solid fa-chevron-down';
+            } else {
+                panel.style.display = 'flex';
+                arrow.className = 'fa-solid fa-chevron-up';
+            }
+        }
+
+        // Abmelden Funktion
+        function logout() {
+            if (confirm('Möchtest du dich wirklich abmelden?')) {
+                localStorage.removeItem('current_user');
+                localStorage.removeItem('currentUser');
+                checkAuthStatus(); // Aktualisiert die Ansicht sofort
+            }
+        }
+    </script>
+
+</body>
+</html>

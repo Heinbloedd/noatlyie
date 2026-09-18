@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gruppe - share, prepare, compare</title>
+    
+    <!-- Font Awesome für Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-image: url('back.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Bereich */
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+        }
+
+        .logo-img {
+            height: 55px;
+            width: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            object-fit: contain;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .profile-btn {
+            font-size: 36px;
+            color: #000;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Hauptbereich mit Notizblock-Liste */
+        main {
+            flex: 1;
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notes-list {
+            list-style: none;
+            width: 100%;
+        }
+
+        /* Einzelne Zeile im Notizblock-Stil */
+        .note-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 40px;
+            border-bottom: 2px solid #000;
+            text-decoration: none;
+            color: #000;
+            transition: background-color 0.2s ease;
+            min-height: 55px;
+        }
+
+        .note-item:hover {
+            background-color: rgba(100, 181, 246, 0.15);
+        }
+
+        /* Badges für Dateitypen */
+        .file-badge {
+            font-size: 11px;
+            font-weight: bold;
+            color: #fff;
+            padding: 2px 5px;
+            border-radius: 2px;
+            margin-right: 18px;
+            display: inline-block;
+            min-width: 35px;
+            text-align: center;
+            text-transform: uppercase;
+            background-color: #0288d1;
+        }
+
+        .badge-pdf { background-color: #d32f2f; }
+        .badge-doc, .badge-docx { background-color: #1976d2; }
+        .badge-png, .badge-jpg, .badge-jpeg { background-color: #388e3c; }
+
+        .file-name {
+            font-size: 20px;
+            font-weight: 400;
+        }
+
+        .empty-message {
+            font-size: 18px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.onerror=null; this.src='logo.jpg';">
+        </a>
+
+        <!-- Dynamischer Titel der Gruppe -->
+        <h1 class="page-title" id="group-title">Gruppe</h1>
+
+        <a href="profile.html" class="profile-btn" title="Mein Profil">
+            <i class="fa-regular fa-circle-user"></i>
+        </a>
+    </header>
+
+    <!-- Notizen-Liste dieser Gruppe -->
+    <main>
+        <ul class="notes-list" id="notes-container">
+            <!-- Wird per JavaScript mit den Dateien des Fachs gefüllt -->
+        </ul>
+    </main>
+
+    <script>
+        // 1. Gruppennamen aus der Adresse auslesen (z. B. ?group=Mathematik)
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentGroup = urlParams.get('group') || 'Gruppe';
+
+        // Titel im Header anpassen
+        document.getElementById('group-title').innerText = currentGroup;
+
+        // 2. Nur Notizen laden, die zu diesem Fach gehören
+        function loadGroupNotes() {
+            const container = document.getElementById('notes-container');
+            const allUploads = JSON.parse(localStorage.getItem('my_uploads') || '[]');
+
+            // Filtern nach dem aktuellen Fach
+            const filteredNotes = allUploads.filter(file => file.subject === currentGroup);
+
+            container.innerHTML = '';
+
+            if (filteredNotes.length === 0) {
+                container.innerHTML = `
+                    <li>
+                        <div class="note-item">
+                            <span class="empty-message">Noch keine Notizen für ${currentGroup} hochgeladen.</span>
+                        </div>
+                    </li>
+                `;
+            } else {
+                filteredNotes.forEach(file => {
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    const li = document.createElement('li');
+                    
+                    li.innerHTML = `
+                        <a href="${file.url || '#'}" class="note-item" download="${file.name}">
+                            <span class="file-badge badge-${ext}">${ext}</span>
+                            <span class="file-name">${file.name}</span>
+                        </a>
+                    `;
+                    container.appendChild(li);
+                });
+            }
+
+            // Notizblock-Optik mit leeren Zeilen auffüllen
+            for (let i = filteredNotes.length; i < 8; i++) {
+                const emptyLi = document.createElement('li');
+                emptyLi.innerHTML = '<div class="note-item"></div>';
+                container.appendChild(emptyLi);
+            }
+        }
+
+        window.onload = loadGroupNotes;
+    </script>
+
+</body>
+</html>

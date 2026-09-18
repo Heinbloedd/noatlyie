@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hochladen - share, prepare, compare</title>
+    
+    <!-- Font Awesome für Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-image: url('back.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Bereich */
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+        }
+
+        .logo-img {
+            height: 55px;
+            width: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            object-fit: contain;
+        }
+
+        .profile-btn {
+            font-size: 36px;
+            color: #000;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Layout mit 2 Spalten */
+        .container {
+            display: flex;
+            flex: 1;
+            padding: 20px 40px;
+            gap: 40px;
+        }
+
+        /* Linke Spalte: Fächerliste */
+        .sidebar-groups {
+            width: 220px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .groups-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+        .group-item {
+            background: none;
+            border: none;
+            text-align: left;
+            font-size: 20px;
+            color: #111;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .group-item:hover {
+            background-color: rgba(100, 181, 246, 0.2);
+            color: #0277bd;
+        }
+
+        .group-item.active {
+            font-weight: bold;
+            background-color: #64b5f6;
+            color: #000;
+        }
+
+        /* Rechte Spalte: Upload-Bereich */
+        .upload-main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-btn-label {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background-color: #80deea;
+            color: #000;
+            padding: 24px 45px;
+            border-radius: 25px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn-label:hover {
+            background-color: #4dd0e1;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .upload-btn-label i {
+            font-size: 40px;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .selected-info {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.onerror=null; this.src='logo.jpg';">
+        </a>
+        <a href="profile.html" class="profile-btn" title="Mein Profil">
+            <i class="fa-regular fa-circle-user"></i>
+        </a>
+    </header>
+
+    <!-- Hauptbereich -->
+    <div class="container">
+        <aside class="sidebar-groups">
+            <div class="groups-title">Gruppen</div>
+            <button class="group-item" onclick="selectGroup(this, 'Amat')">Amat</button>
+            <button class="group-item" onclick="selectGroup(this, 'AGSW')">AGSW</button>
+            <button class="group-item" onclick="selectGroup(this, 'Chemie')">Chemie</button>
+            <button class="group-item" onclick="selectGroup(this, 'Biologie')">Biologie</button>
+            <button class="group-item" onclick="selectGroup(this, 'Wirtschaft')">Wirtschaft</button>
+            <button class="group-item" onclick="selectGroup(this, 'Geschichte')">Geschichte</button>
+            <button class="group-item" onclick="selectGroup(this, 'Englisch')">Englisch</button>
+            <button class="group-item" onclick="selectGroup(this, 'Deutsch')">Deutsch</button>
+            <button class="group-item" onclick="selectGroup(this, 'Französisch')">Französisch</button>
+        </aside>
+
+        <main class="upload-main">
+            <form id="upload-form">
+                <label for="file-input" class="upload-btn-label">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                    <span>Hochladen</span>
+                </label>
+                <input type="file" id="file-input" onchange="handleFileSelect(event)">
+                <div class="selected-info" id="status-text">Bitte wähle zuerst links ein Fach aus.</div>
+            </form>
+        </main>
+    </div>
+
+    <!-- HIER GEHÖRT DAS SKRIPT HIN (Ganz unten vor dem </body>-Tag) -->
+    <script>
+        let chosenSubject = '';
+
+        function selectGroup(element, subject) {
+            document.querySelectorAll('.group-item').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            chosenSubject = subject;
+            document.getElementById('status-text').innerText = 'Ausgewähltes Fach: ' + subject;
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+
+            if (!chosenSubject) {
+                alert('Bitte wähle zuerst links ein Fach aus!');
+                // Auswahl zurücksetzen
+                event.target.value = '';
+                return;
+            }
+
+            if (file) {
+                // 1. Bisher hochgeladene Dateien aus dem Speicher abrufen
+                let uploads = JSON.parse(localStorage.getItem('my_uploads') || '[]');
+                
+                // 2. Die neue Datei hinzufügen
+                uploads.push({ 
+                    name: file.name, 
+                    subject: chosenSubject,
+                    date: new Date().toLocaleDateString() 
+                });
+                
+                // 3. Im Browser speichern
+                localStorage.setItem('my_uploads', JSON.stringify(uploads));
+
+                alert(`Datei "${file.name}" für das Fach "${chosenSubject}" erfolgreich hochgeladen!`);
+                document.getElementById('status-text').innerText = `Zuletzt hochgeladen: ${file.name} (${chosenSubject})`;
+            }
+        }
+    </script>
+</body>
+</html>

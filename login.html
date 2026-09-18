@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anmelden & Registrieren - share, prepare, compare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-image: url('back.jpeg'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; min-height: 100vh; display: flex; flex-direction: column; }
+        header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; }
+        .logo-img { height: 55px; width: auto; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); object-fit: contain; }
+        .page-title { font-size: 36px; font-weight: 500; color: #000; }
+        .profile-btn { font-size: 36px; color: #000; text-decoration: none; transition: transform 0.2s ease; }
+        .profile-btn:hover { transform: scale(1.1); }
+        main { flex: 1; padding: 40px 20px; max-width: 480px; margin: 0 auto; width: 100%; display: flex; align-items: center; }
+        .auth-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 20px; padding: 35px 30px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .tab-header { display: flex; width: 100%; border-bottom: 2px solid #ddd; margin-bottom: 10px; }
+        .tab-btn { flex: 1; padding: 10px; background: none; border: none; font-size: 18px; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: #64b5f6; border-bottom-color: #64b5f6; }
+        form { width: 100%; display: flex; flex-direction: column; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 14px; font-weight: 600; color: #333; }
+        .input-field { position: relative; display: flex; align-items: center; }
+        .input-field i { position: absolute; left: 15px; color: #666; font-size: 16px; }
+        .input-field input { width: 100%; padding: 12px 15px 12px 42px; border-radius: 12px; border: 1px solid #ccc; outline: none; font-size: 16px; background: rgba(255, 255, 255, 0.9); }
+        .submit-btn { background-color: #64b5f6; color: #000; border: none; padding: 14px; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: all 0.2s ease; }
+        .submit-btn:hover { background-color: #42a5f5; transform: translateY(-2px); }
+        .message-box { width: 100%; padding: 12px; border-radius: 10px; font-size: 14px; display: none; text-align: center; font-weight: 500; }
+        .message-box.error { background-color: #ffebee; color: #c62828; border: 1px solid #ef9a9a; display: block; }
+        .message-box.success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; display: block; }
+        .guest-link { color: #555; text-decoration: none; font-size: 14px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.onerror=null; this.src='logo.jpg';">
+        </a>
+        <h1 class="page-title" id="page-header-title">Anmelden</h1>
+        <a href="profile.html" class="profile-btn" title="Mein Profil"><i class="fa-regular fa-circle-user"></i></a>
+    </header>
+
+    <main>
+        <div class="auth-card">
+            <div class="tab-header">
+                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Anmelden</button>
+                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Konto erstellen</button>
+            </div>
+
+            <div id="message-box" class="message-box"></div>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="login-email">E-Mail</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="login-email" placeholder="deine@schule.ch" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Passwort</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Anmelden</button>
+            </form>
+
+            <form id="register-form" style="display: none;">
+                <div class="input-group">
+                    <label for="reg-name">Vollständiger Name</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="reg-name" placeholder="z.B. Raphael" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="reg-email">E-Mail</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="reg-email" placeholder="deine@schule.ch" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="reg-password">Passwort</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="reg-password" placeholder="Mindestens 6 Zeichen" minlength="6" required>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Konto erstellen</button>
+            </form>
+
+            <a href="profile.html" class="guest-link">Als Gast fortfahren</a>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJVCWyKoD97UCNx1Z_vDKKG9aGkCSAY38",
+            authDomain: "noatly-144b7.firebaseapp.com",
+            projectId: "noatly-144b7",
+            storageBucket: "noatly-144b7.firebasestorage.app",
+            messagingSenderId: "958712826528",
+            appId: "1:958712826528:web:5134bb7688c05bddbb17c5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.switchTab = function(tab) {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const headerTitle = document.getElementById('page-header-title');
+
+            hideMessage();
+
+            if (tab === 'login') {
+                loginForm.style.display = 'flex';
+                registerForm.style.display = 'none';
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                headerTitle.innerText = 'Anmelden';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'flex';
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+                headerTitle.innerText = 'Konto erstellen';
+            }
+        };
+
+        // Login verarbeiten
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage('Erfolgreich angemeldet!', 'success');
+                setTimeout(() => window.location.href = 'profile.html', 800);
+            } catch (error) {
+                showMessage('Fehler: Falsche E-Mail oder Passwort.', 'error');
+            }
+        });
+
+        // Registrierung verarbeiten
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: name });
+                
+                showMessage('Konto erstellt! Du wirst weitergeleitet...', 'success');
+                setTimeout(() => window.location.href = 'profile.html', 800);
+            } catch (error) {
+                showMessage('Fehler bei der Registrierung: ' + error.message, 'error');
+            }
+        });
+
+        function showMessage(text, type) {
+            const box = document.getElementById('message-box');
+            box.innerText = text;
+            box.className = 'message-box ' + type;
+        }
+
+        function hideMessage() {
+            const box = document.getElementById('message-box');
+            box.className = 'message-box';
+            box.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

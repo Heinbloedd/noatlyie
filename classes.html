@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meine Klassen - share, prepare, compare</title>
+    
+    <!-- Font Awesome für Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-image: url('back.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Bereich */
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+        }
+
+        .logo-img {
+            height: 55px;
+            width: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            object-fit: contain;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .profile-btn {
+            font-size: 36px;
+            color: #000;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Hauptbereich */
+        main {
+            flex: 1;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .create-btn {
+            background-color: #64b5f6;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        .create-btn:hover {
+            background-color: #42a5f5;
+        }
+
+        /* Klassen-Liste */
+        .classes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .class-card {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .class-info h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #000;
+        }
+
+        .class-info p {
+            color: #555;
+            font-size: 15px;
+        }
+
+        .class-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .class-badge {
+            background-color: #e3f2fd;
+            color: #0288d1;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Löschen-Button */
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #e53935;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: rgba(229, 57, 53, 0.1);
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #555;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+        }
+
+        /* Modal (Popup) Style */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal h2 {
+            font-size: 24px;
+            color: #000;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group textarea {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-save {
+            background-color: #64b5f6;
+            color: #000;
+        }
+
+        .btn-save:hover {
+            background-color: #42a5f5;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.onerror=null; this.src='logo.jpg';">
+        </a>
+
+        <h1 class="page-title">Meine Klassen</h1>
+
+        <a href="profile.html" class="profile-btn" title="Mein Profil">
+            <i class="fa-regular fa-circle-user"></i>
+        </a>
+    </header>
+
+    <!-- Hauptbereich -->
+    <main>
+        <div class="top-bar">
+            <h2>Übersicht Deiner Klassen</h2>
+            <button class="create-btn" onclick="openModal()">
+                <i class="fa-solid fa-plus"></i> Neue Klasse anlegen
+            </button>
+        </div>
+
+        <div class="classes-list" id="classes-container">
+            <!-- Wird dynamisch aus localStorage befüllt -->
+        </div>
+    </main>
+
+    <!-- Modal zum Erstellen einer Klasse -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h2>Neue Klasse anlegen</h2>
+            
+            <div class="form-group">
+                <label for="class-name">Klassenbezeichnung</label>
+                <input type="text" id="class-name" placeholder="z. B. Klasse 3a, GYM2...">
+            </div>
+
+            <div class="form-group">
+                <label for="class-members">Schüler / Mitschüler hinzufügen (kommagetrennt)</label>
+                <textarea id="class-members" placeholder="max@schule.ch, anna@schule.ch, tim@schule.ch..."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal()">Abbrechen</button>
+                <button class="btn btn-save" onclick="saveClass()">Klasse speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.getElementById('class-name').value = '';
+            document.getElementById('class-members').value = '';
+        }
+
+        function renderClasses() {
+            const container = document.getElementById('classes-container');
+            const savedClasses = JSON.parse(localStorage.getItem('my_classes') || '[]');
+
+            container.innerHTML = '';
+
+            if (savedClasses.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        Du bist noch in keiner Klasse eingetragen. Erstelle eine neue Klasse mit dem Button oben!
+                    </div>
+                `;
+                return;
+            }
+
+            savedClasses.forEach((cls, index) => {
+                const card = document.createElement('div');
+                card.className = 'class-card';
+                card.innerHTML = `
+                    <div class="class-info">
+                        <h3>${cls.name}</h3>
+                        <p><strong>Mitglieder:</strong> ${cls.members.length > 0 ? cls.members.join(', ') : 'Keine Mitglieder eingetragen'}</p>
+                    </div>
+                    <div class="class-actions">
+                        <span class="class-badge">${cls.members.length} Schüler</span>
+                        <button class="delete-btn" onclick="deleteClass(${index})" title="Klasse löschen">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function saveClass() {
+            const name = document.getElementById('class-name').value.trim();
+            const membersRaw = document.getElementById('class-members').value;
+
+            if (!name) {
+                alert('Bitte gib einen Klassennamen ein!');
+                return;
+            }
+
+            const members = membersRaw.split(',').map(m => m.trim()).filter(m => m !== '');
+
+            const savedClasses = JSON.parse(localStorage.getItem('my_classes') || '[]');
+            savedClasses.push({
+                name: name,
+                members: members
+            });
+
+            localStorage.setItem('my_classes', JSON.stringify(savedClasses));
+
+            closeModal();
+            renderClasses();
+        }
+
+        function deleteClass(index) {
+            const savedClasses = JSON.parse(localStorage.getItem('my_classes') || '[]');
+            const className = savedClasses[index]?.name || 'diese Klasse';
+
+            if (confirm(`Möchtest du "${className}" wirklich löschen?`)) {
+                savedClasses.splice(index, 1);
+                localStorage.setItem('my_classes', JSON.stringify(savedClasses));
+                renderClasses();
+            }
+        }
+
+        window.onload = renderClasses;
+    </script>
+
+</body>
+</html>

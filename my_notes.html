@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meine Notizen - share, prepare, compare</title>
+    
+    <!-- Font Awesome für Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-image: url('back.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Bereich */
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+        }
+
+        .logo-img {
+            height: 55px;
+            width: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            object-fit: contain;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .profile-btn {
+            font-size: 36px;
+            color: #000;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Container für die Notizen-Liste */
+        main {
+            flex: 1;
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notes-list {
+            list-style: none;
+            width: 100%;
+        }
+
+        /* Einzelne Zeile im Notizblock-Stil */
+        .note-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 40px;
+            border-bottom: 2px solid #000;
+            text-decoration: none;
+            color: #000;
+            transition: background-color 0.2s ease;
+            min-height: 55px;
+        }
+
+        .note-item:hover {
+            background-color: rgba(100, 181, 246, 0.15);
+        }
+
+        /* Badges für Dateitypen */
+        .file-badge {
+            font-size: 11px;
+            font-weight: bold;
+            color: #fff;
+            padding: 2px 5px;
+            border-radius: 2px;
+            margin-right: 18px;
+            display: inline-block;
+            min-width: 35px;
+            text-align: center;
+            text-transform: uppercase;
+            background-color: #0288d1; /* Standard-Blau */
+        }
+
+        .badge-pdf { background-color: #d32f2f; }
+        .badge-doc, .badge-docx { background-color: #1976d2; }
+        .badge-png, .badge-jpg, .badge-jpeg { background-color: #388e3c; }
+
+        .file-name {
+            font-size: 20px;
+            font-weight: 400;
+        }
+
+        .empty-message {
+            font-size: 18px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.onerror=null; this.src='logo.jpg';">
+        </a>
+
+        <h1 class="page-title">Meine Notizen</h1>
+
+        <a href="profile.html" class="profile-btn" title="Mein Profil">
+            <i class="fa-regular fa-circle-user"></i>
+        </a>
+    </header>
+
+    <!-- Dynamische Liste -->
+    <main>
+        <ul class="notes-list" id="notes-container">
+            <!-- Wird automatisch per JavaScript befüllt -->
+        </ul>
+    </main>
+
+    <script>
+        function loadUploadedNotes() {
+            const container = document.getElementById('notes-container');
+            
+            // Abrufen der im Browser gespeicherten Uploads
+            const uploads = JSON.parse(localStorage.getItem('my_uploads') || '[]');
+
+            container.innerHTML = '';
+
+            if (uploads.length === 0) {
+                // Wenn noch nichts hochgeladen wurde
+                container.innerHTML = `
+                    <li>
+                        <div class="note-item">
+                            <span class="empty-message">Noch keine Notizen hochgeladen.</span>
+                        </div>
+                    </li>
+                `;
+            } else {
+                // Erstellt für jede hochgeladene Datei eine Zeile
+                uploads.forEach(file => {
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    const li = document.createElement('li');
+                    
+                    li.innerHTML = `
+                        <a href="${file.url || '#'}" class="note-item" download="${file.name}">
+                            <span class="file-badge badge-${ext}">${ext}</span>
+                            <span class="file-name">${file.name}</span>
+                        </a>
+                    `;
+                    container.appendChild(li);
+                });
+            }
+
+            // Füllt die Seite optisch mit leeren Notizblock-Zeilen auf
+            for (let i = uploads.length; i < 8; i++) {
+                const emptyLi = document.createElement('li');
+                emptyLi.innerHTML = '<div class="note-item"></div>';
+                container.appendChild(emptyLi);
+            }
+        }
+
+        // Seite beim Laden direkt aktualisieren
+        window.onload = loadUploadedNotes;
+    </script>
+
+</body>
+</html>

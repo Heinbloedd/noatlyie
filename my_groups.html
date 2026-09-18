@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meine Gruppen - share, prepare, compare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-image: url('back.jpeg'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; min-height: 100vh; display: flex; flex-direction: column; }
+        header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; }
+        .logo-img { height: 55px; width: auto; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); object-fit: contain; }
+        .page-title { font-size: 36px; font-weight: 500; color: #000; }
+        .profile-btn { font-size: 36px; color: #000; text-decoration: none; }
+        
+        main { flex: 1; padding: 40px 20px; max-width: 600px; margin: 0 auto; width: 100%; }
+        .card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 20px; padding: 30px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        
+        .add-group-box { display: flex; gap: 10px; margin-bottom: 25px; }
+        .add-group-box input { flex: 1; padding: 12px 15px; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; outline: none; }
+        .add-group-box button { background: #64b5f6; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .add-group-box button:hover { background: #42a5f5; }
+
+        .groups-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .group-item { background: rgba(255, 255, 255, 0.9); padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .group-item span { font-size: 18px; font-weight: 500; }
+        .delete-btn { background: none; border: none; color: #e53935; cursor: pointer; font-size: 18px; }
+        .empty-info { text-align: center; color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.onerror=null; this.src='logo.jpg';">
+        </a>
+        <h1 class="page-title">Meine Gruppen</h1>
+        <a href="profile.html" class="profile-btn"><i class="fa-regular fa-circle-user"></i></a>
+    </header>
+
+    <main>
+        <div class="card">
+            <div class="add-group-box">
+                <input type="text" id="group-name-input" placeholder="Neue Gruppe eingeben...">
+                <button onclick="addGroup()"><i class="fa-solid fa-plus"></i> Hinzufügen</button>
+            </div>
+
+            <ul id="groups-list" class="groups-list">
+                <li class="empty-info">Lade Gruppen...</li>
+            </ul>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJVCWyKoD97UCNx1Z_vDKKG9aGkCSAY38",
+            authDomain: "noatly-144b7.firebaseapp.com",
+            projectId: "noatly-144b7",
+            storageBucket: "noatly-144b7.firebasestorage.app",
+            messagingSenderId: "958712826528",
+            appId: "1:958712826528:web:5134bb7688c05bddbb17c5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        // Login-Zustand prüfen
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadGroups();
+            } else {
+                const list = document.getElementById('groups-list');
+                list.innerHTML = '<li class="empty-info">Bitte melde dich an, um deine Gruppen zu sehen.</li>';
+            }
+        });
+
+        // Gruppen aus Firestore laden
+        async function loadGroups() {
+            if (!currentUser) return;
+
+            const userRef = doc(db, "users", currentUser.uid);
+            const docSnap = await getDoc(userRef);
+
+            const list = document.getElementById('groups-list');
+            list.innerHTML = '';
+
+            if (docSnap.exists() && docSnap.data().my_groups && docSnap.data().my_groups.length > 0) {
+                const groups = docSnap.data().my_groups;
+                groups.forEach(groupName => {
+                    renderGroupUI(groupName);
+                });
+            } else {
+                list.innerHTML = '<li class="empty-info">Keine Gruppen vorhanden. Erstelle deine erste Gruppe!</li>';
+            }
+        }
+
+        // Gruppe hinzufügen
+        window.addGroup = async function() {
+            const input = document.getElementById('group-name-input');
+            const groupName = input.value.trim();
+
+            if (!groupName) return;
+            if (!currentUser) {
+                alert('Bitte melde dich zuerst an!');
+                return;
+            }
+
+            const userRef = doc(db, "users", currentUser.uid);
+
+            // Speichert die Gruppe direkt im Array 'my_groups' in Firestore
+            await setDoc(userRef, {
+                my_groups: arrayUnion(groupName)
+            }, { merge: true });
+
+            input.value = '';
+            loadGroups();
+        };
+
+        // Gruppe löschen
+        window.deleteGroup = async function(groupName) {
+            if (!currentUser) return;
+
+            const userRef = doc(db, "users", currentUser.uid);
+
+            await updateDoc(userRef, {
+                my_groups: arrayRemove(groupName)
+            });
+
+            loadGroups();
+        };
+
+        function renderGroupUI(groupName) {
+            const list = document.getElementById('groups-list');
+            const li = document.createElement('li');
+            li.className = 'group-item';
+            li.innerHTML = `
+                <span><i class="fa-solid fa-users"></i> ${groupName}</span>
+                <button class="delete-btn" onclick="deleteGroup('${groupName}')"><i class="fa-solid fa-trash"></i></button>
+            `;
+            list.appendChild(li);
+        }
+    </script>
+</body>
+</html>
